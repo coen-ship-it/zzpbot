@@ -1,0 +1,32 @@
+# ZZPbot — gitignore
+
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+*.spec.bak
+
+# Data (vertrouwelijk)
+profiles/
+uploads/
+reports/
+monitoring_data.json
+zzpbot_*.json
+monitor.log
+
+# Systeem
+.DS_Store
+Thumbs.db
+*.swp

@@ -1,0 +1,6 @@
+# ZZPbot Monitor Dependencies (Windows only)
+# Install met: pip install -r requirements_monitor.txt
+requests>=2.31.0
+psutil>=5.9.0
+pywin32>=306
+pyinstaller>=6.0.0
