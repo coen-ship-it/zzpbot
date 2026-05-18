@@ -3,12 +3,14 @@ app.py — ZZPbot Flask Server
 Routes: / | /intake | /download/monitor | /webhook | /activity | /upload | /health
 """
 
+import io
 import json
 import logging
 import os
 import smtplib
 import threading
 import uuid
+import zipfile
 from datetime import datetime
 from email import encoders
 from email.mime.base import MIMEBase
@@ -218,11 +220,75 @@ def intake():
         json.dump(config, fp, indent=2, ensure_ascii=False)
 
     logger.info(f"Nieuw profiel aangemaakt: {client_id} ({naam})")
+    return redirect(url_for("succes", client_id=client_id))
+
+
+@app.route("/succes/<client_id>")
+def succes(client_id: str):
+    """Toon succes-pagina na intake met download-knop voor het startpakket."""
+    client_id = client_id.upper()
+    profile = load_profile(client_id)
+    if not profile:
+        return redirect(url_for("intake"))
+    return render_template("succes.html", profile=profile, client_id=client_id)
+
+
+@app.route("/download/bundle/<client_id>")
+def download_bundle(client_id: str):
+    """
+    Maak een ZIP-startpakket met de monitor config + (optioneel) monitor.exe.
+    Eén download, dubbelklikken, klaar.
+    """
+    client_id = client_id.upper()
+    profile = load_profile(client_id)
+    if not profile:
+        return jsonify({"error": "Client ID niet gevonden"}), 404
+
+    naam = profile.get("naam", "klant")
+    config_name = f"zzpbot_{naam.lower().replace(' ', '_')}.json"
+
+    # Config JSON opnieuw opbouwen
+    config = {
+        "client_id":        client_id,
+        "naam":             naam,
+        "server_url":       SERVER_URL,
+        "maatwerksoftware": profile.get("maatwerksoftware", ""),
+        "werktijden":       profile.get("werktijden", "09:00-17:00"),
+    }
+    config_bytes = json.dumps(config, indent=2, ensure_ascii=False).encode("utf-8")
+
+    # ZIP in-memory aanmaken
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(config_name, config_bytes)
+
+        # README voor de gebruiker
+        readme = (
+            f"ZZPbot Startpakket — {naam}\n"
+            "================================\n\n"
+            "Stappen:\n"
+            f"1. Zet monitor.exe en {config_name} in dezelfde map\n"
+            "2. Dubbelklik op monitor.exe\n"
+            "3. Laat het een week draaien terwijl je normaal werkt\n"
+            "4. Het monitoringbestand wordt automatisch bijgehouden\n\n"
+            f"Je Client ID: {client_id}\n"
+            f"Upload na een week via: {SERVER_URL}/upload\n\n"
+            "Vragen? Neem contact op via NextEnabler.com\n"
+        )
+        zf.writestr("LEES_MIJ.txt", readme.encode("utf-8"))
+
+        # Voeg monitor.exe toe als die beschikbaar is
+        exe_path = BASE_DIR / "dist" / "monitor.exe"
+        if exe_path.exists():
+            zf.write(exe_path, "monitor.exe")
+
+    buf.seek(0)
+    zip_name = f"zzpbot_startpakket_{naam.lower().replace(' ', '_')}.zip"
     return send_file(
-        config_path,
+        buf,
         as_attachment=True,
-        download_name=config_name,
-        mimetype="application/json",
+        download_name=zip_name,
+        mimetype="application/zip",
     )
 
 
