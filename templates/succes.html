@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZZPbot — Klaar om te starten</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .succes-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2.5rem;
+      margin: 2rem auto;
+      max-width: 560px;
+      text-align: center;
+    }
+    .check-icon {
+      font-size: 3rem;
+      margin-bottom: .5rem;
+    }
+    .client-id-box {
+      background: #f1f5f9;
+      border: 2px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem auto;
+      display: inline-block;
+      font-family: monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      color: #0f172a;
+      cursor: pointer;
+      user-select: all;
+    }
+    .client-id-box:hover { background: #e2e8f0; }
+    .stap-lijst {
+      text-align: left;
+      margin: 1.5rem 0;
+      padding: 0;
+      list-style: none;
+    }
+    .stap-lijst li {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      color: #374151;
+    }
+    .stap-lijst li:last-child { border: none; }
+    .stap-num {
+      background: #2563eb;
+      color: #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: .9rem 2rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s;
+      margin-top: .5rem;
+    }
+    .btn-download:hover { background: #1d4ed8; }
+    .note {
+      font-size: .85rem;
+      color: #64748b;
+      margin-top: .75rem;
+    }
+    .exe-note {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      padding: .75rem 1rem;
+      font-size: .85rem;
+      color: #78350f;
+      text-align: left;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">ZZP<span>bot</span></a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/upload">Rapport ophalen</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="succes-card">
+    <div class="check-icon">✅</div>
+    <h1 style="margin:.5rem 0 .25rem">Gelukt, {{ profile.naam }}!</h1>
+    <p style="color:#64748b;margin-bottom:0">Je profiel is aangemaakt. Sla je Client ID goed op:</p>
+
+    <div class="client-id-box" title="Klik om te kopiëren" onclick="copyId(this)">{{ client_id }}</div>
+    <p class="note" id="copy-msg" style="min-height:1.2em"></p>
+
+    <hr style="border:none;border-top:1px solid #f1f5f9;margin:1.5rem 0">
+
+    <h3 style="margin-bottom:1rem">Wat nu?</h3>
+    <ol class="stap-lijst">
+      <li>
+        <span class="stap-num">1</span>
+        <span>Download je persoonlijke startpakket hieronder (ZIP met config + uitleg)</span>
+      </li>
+      <li>
+        <span class="stap-num">2</span>
+        <span>Pak de ZIP uit in een map naar keuze op je Windows computer</span>
+      </li>
+      <li>
+        <span class="stap-num">3</span>
+        <span>Zet <code>monitor.exe</code> in dezelfde map als het configuratiebestand</span>
+      </li>
+      <li>
+        <span class="stap-num">4</span>
+        <span>Dubbelklik op <code>monitor.exe</code> — de monitor draait nu op de achtergrond</span>
+      </li>
+      <li>
+        <span class="stap-num">5</span>
+        <span>Werk een week normaal. Kom daarna terug op <a href="/upload">/upload</a> met je data</span>
+      </li>
+    </ol>
+
+    <a href="/download/bundle/{{ client_id }}" class="btn-download">
+      ⬇️ Download startpakket (ZIP)
+    </a>
+
+    <div class="exe-note">
+      <strong>Let op:</strong> de ZIP bevat de configuratie voor jouw account.
+      Download <code>monitor.exe</code> apart via de knop hieronder en zet die in dezelfde map.
+      <br><br>
+      <a href="/download/monitor" style="color:#92400e;font-weight:600">⬇️ Download monitor.exe</a>
+    </div>
+
+    <p class="note" style="margin-top:1.5rem">
+      Bewaar je Client ID: <strong>{{ client_id }}</strong> — je hebt dit nodig bij het uploaden.
+    </p>
+  </div>
+</div>
+
+<script>
+function copyId(el) {
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    document.getElementById('copy-msg').textContent = '✓ Gekopieerd!';
+    setTimeout(() => document.getElementById('copy-msg').textContent = '', 2000);
+  });
+}
+</script>
+
+</body>
+</html>
