@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZZPbot — Intake invullen</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">ZZP<span>bot</span></a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/upload">Rapport ophalen</a>
+  </div>
+</nav>
+
+<div class="container-sm">
+
+  <h1 class="page-title" style="margin-top:32px;">Stap 1 — Intake invullen</h1>
+  <p class="page-sub">Duurt 3 minuten. Daarna download je automatisch je persoonlijke configuratiebestand.</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" action="/intake" id="intake-form">
+
+      <h3 style="margin-bottom:20px;color:#0f172a;">Over jou</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="naam">Jouw naam *</label>
+          <input type="text" id="naam" name="naam" placeholder="Jan Jansen" required>
+        </div>
+        <div class="form-group">
+          <label for="email">E-mailadres</label>
+          <input type="email" id="email" name="email" placeholder="jan@bedrijf.nl">
+          <p class="hint">Optioneel — voor het ontvangen van je rapport</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="bedrijfstype">Wat voor ondernemer ben je? *</label>
+        <select id="bedrijfstype" name="bedrijfstype" required>
+          <option value="">Selecteer...</option>
+          <option>Consultant / Adviseur</option>
+          <option>Designer / Creatief</option>
+          <option>Developer / IT</option>
+          <option>Financieel adviseur / Boekhouder</option>
+          <option>Marketeer / Copywriter</option>
+          <option>Coach / Trainer</option>
+          <option>Jurist / Notaris</option>
+          <option>Projectmanager</option>
+          <option>Recruitment / HR</option>
+          <option>Bouwkunde / Architectuur</option>
+          <option>Zorg / Welzijn</option>
+          <option>Overig</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="uurtarief">Jouw uurtarief (€) *</label>
+        <input type="number" id="uurtarief" name="uurtarief" placeholder="95" min="20" max="500" required>
+        <p class="hint">Dit gebruiken we om de ROI in euro's te berekenen</p>
+      </div>
+
+      <hr style="border:none;border-top:1.5px solid #e2e8f0;margin:24px 0;">
+      <h3 style="margin-bottom:20px;color:#0f172a;">Jouw tools & werkwijze</h3>
+
+      <div class="form-group">
+        <label for="huidige_tools">Welke tools gebruik je dagelijks? *</label>
+        <input type="text" id="huidige_tools" name="huidige_tools"
+               placeholder="Outlook, Excel, Teams, Exact Online, SnelStart, ...">
+        <p class="hint">Kommagescheiden — hoe meer je invult, hoe nauwkeuriger de analyse</p>
+      </div>
+
+      <div class="form-group">
+        <label for="maatwerksoftware">Maatwerk of branchespecifieke software?</label>
+        <input type="text" id="maatwerksoftware" name="maatwerksoftware"
+               placeholder="Bijv. Afas, Exact, NMBRS, Carerix, ...">
+        <p class="hint">Optioneel — helpt ons branchespecifieke kansen te herkennen</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="werktijden">Typische werktijden</label>
+          <input type="text" id="werktijden" name="werktijden" placeholder="09:00–17:00" value="09:00-17:00">
+        </div>
+        <div class="form-group">
+          <label for="uren_per_week">Uren per week (gemiddeld)</label>
+          <input type="number" id="uren_per_week" name="uren_per_week" placeholder="40" min="8" max="80">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="uitdagingen">Waar verlies jij het meeste tijd aan?</label>
+        <textarea id="uitdagingen" name="uitdagingen" rows="3"
+                  placeholder="Bijv. e-mails beantwoorden, offertes maken, uren registreren, facturen versturen..."></textarea>
+        <p class="hint">Optioneel maar waardevol — helpt ons de beste kansen te vinden</p>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:8px;">
+        <strong>📥 Wat er daarna gebeurt:</strong><br>
+        Je download direct een <code>zzpbot_*.json</code> configuratiebestand.
+        Zet dit in dezelfde map als <code>monitor.exe</code> en start de monitor.
+        Na een week upload je de data en ontvang je je rapport.
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" id="submit-btn">
+        ✓ Intake versturen &amp; configuratie downloaden
+      </button>
+
+      <p class="privacy-note" style="margin-top:12px;">
+        🔒 Je gegevens worden alleen gebruikt voor jouw rapport en nooit gedeeld met derden.
+      </p>
+
+    </form>
+  </div>
+
+  <!-- Volgende stap uitleg -->
+  <div class="card" style="background:#f8fafc;">
+    <h3 style="margin-bottom:12px;">📋 Na het invullen</h3>
+    <ol style="padding-left:20px;color:#334155;line-height:2;">
+      <li>Download <strong>monitor.exe</strong> via de knop die verschijnt</li>
+      <li>Zet <code>monitor.exe</code> + je configuratiebestand in één map</li>
+      <li>Dubbelklik op <code>monitor.exe</code> om de monitoring te starten</li>
+      <li>Laat het een week draaien terwijl jij gewoon werkt</li>
+      <li>Kom daarna terug op <a href="/upload">/upload</a> om je rapport te genereren</li>
+    </ol>
+  </div>
+
+</div>
+
+<footer>
+  <p>ZZPbot · <a href="/">Home</a> · <a href="/upload">Rapport ophalen</a></p>
+</footer>
+
+<script>
+document.getElementById('intake-form').addEventListener('submit', function() {
+  document.getElementById('submit-btn').textContent = '⏳ Verwerken...';
+  document.getElementById('submit-btn').disabled = true;
+});
+</script>
+
+</body>
+</html>

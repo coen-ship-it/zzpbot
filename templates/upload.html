@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZZPbot — Rapport genereren</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">ZZP<span>bot</span></a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/intake">Nieuwe scan</a>
+  </div>
+</nav>
+
+<div class="container-sm">
+
+  <h1 class="page-title" style="margin-top:32px;">Stap 4 — Rapport genereren</h1>
+  <p class="page-sub">Upload je <code>monitoring_data.json</code> en ontvang direct je persoonlijke PDF-rapport.</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" action="/upload" enctype="multipart/form-data" id="upload-form">
+
+      <div class="form-group">
+        <label for="client_id">Jouw Client ID *</label>
+        <input type="text" id="client_id" name="client_id"
+               placeholder="Bijv. A3B7C2D1"
+               maxlength="8" style="text-transform:uppercase;letter-spacing:2px;font-size:1.1rem;"
+               required>
+        <p class="hint">Je Client ID stond in je configuratiebestand (zzpbot_*.json) als <code>"client_id"</code></p>
+      </div>
+
+      <div class="form-group">
+        <label>Jouw monitoring databestand *</label>
+        <div class="upload-box" id="upload-box" onclick="document.getElementById('data_file').click()">
+          <div class="upload-icon">📁</div>
+          <p><strong>Klik hier om te uploaden</strong> of sleep je bestand hierheen</p>
+          <p>Zoek naar <code>monitoring_data.json</code> in de map van je monitor</p>
+        </div>
+        <input type="file" id="data_file" name="data_file"
+               accept=".json,application/json" style="display:none;" required>
+        <div id="file-name" style="margin-top:8px;color:#15803d;font-weight:600;display:none;"></div>
+      </div>
+
+      <!-- Voortgang indicator (verborgen tot submit) -->
+      <div id="progress" style="display:none;text-align:center;padding:24px;">
+        <div style="font-size:2rem;margin-bottom:12px;">🤖</div>
+        <p style="font-weight:600;color:#1e40af;margin-bottom:6px;">Rapport wordt gegenereerd...</p>
+        <p style="color:#64748b;font-size:.9rem;">
+          Claude analyseert je activiteitsdata en berekent automatiseringskansen.<br>
+          Dit duurt 30–60 seconden.
+        </p>
+        <div style="margin-top:16px;">
+          <div style="height:6px;background:#dbeafe;border-radius:3px;overflow:hidden;">
+            <div id="progress-bar" style="height:100%;background:#2563eb;width:0%;transition:width .4s;border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" id="submit-btn">
+        📊 Rapport genereren &amp; downloaden
+      </button>
+
+      <p class="privacy-note" style="margin-top:12px;">
+        🔒 Je ruwe activiteitsdata wordt direct na het genereren van het rapport verwijderd.
+        Het rapport zelf bevat geen persoonsgevoelige vensterinhoud.
+      </p>
+
+    </form>
+  </div>
+
+  <!-- Waar is het bestand? -->
+  <div class="card">
+    <h3 style="margin-bottom:12px;">📂 Waar staat <code>monitoring_data.json</code>?</h3>
+    <p style="color:#334155;margin-bottom:12px;">
+      Het bestand staat in de map waar je <code>monitor.exe</code> staat — dezelfde map als je configuratiebestand.
+      De monitor heeft het aangemaakt na de eerste 5 minuten tracking.
+    </p>
+    <div style="background:#f1f5f9;border-radius:8px;padding:14px;font-family:monospace;font-size:.9rem;color:#334155;">
+      📁 ZZPbot/<br>
+      &nbsp;&nbsp;├── monitor.exe<br>
+      &nbsp;&nbsp;├── zzpbot_jan_jansen.json<br>
+      &nbsp;&nbsp;<strong>└── monitoring_data.json</strong> ← dit bestand
+    </div>
+  </div>
+
+  <!-- Voorbeeldrapport -->
+  <div class="card" style="background:#f0fdf4;border:1.5px solid #86efac;">
+    <h3 style="color:#15803d;margin-bottom:12px;">✅ Wat je rapport bevat</h3>
+    <ul class="features">
+      <li>AI Readiness Score — hoe klaar ben je voor automatisering?</li>
+      <li>Tijdsverdeling per app — hoeveel uur per week in elk programma</li>
+      <li>3–6 concrete automatiseringskansen met bewijs uit jouw data</li>
+      <li>Agent briefing: hoe werkt de AI precies voor jouw taak?</li>
+      <li>ROI per kans: uren/week en euro's per maand bespaard</li>
+      <li>Aanbevolen eerste stap om direct mee te beginnen</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>ZZPbot · <a href="/">Home</a> · <a href="/intake">Nieuwe scan starten</a></p>
+</footer>
+
+<script>
+// Bestandsnaam tonen na selectie
+document.getElementById('data_file').addEventListener('change', function() {
+  const name = this.files[0]?.name;
+  if (name) {
+    document.getElementById('file-name').textContent = '✓ Geselecteerd: ' + name;
+    document.getElementById('file-name').style.display = 'block';
+    document.getElementById('upload-box').style.borderColor = '#15803d';
+    document.getElementById('upload-box').style.background = '#f0fdf4';
+  }
+});
+
+// Drag & drop
+const box = document.getElementById('upload-box');
+box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('dragover'); });
+box.addEventListener('dragleave', () => box.classList.remove('dragover'));
+box.addEventListener('drop', e => {
+  e.preventDefault();
+  box.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const input = document.getElementById('data_file');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  }
+});
+
+// Client ID uppercase
+document.getElementById('client_id').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+
+// Laadanimatie bij submit
+document.getElementById('upload-form').addEventListener('submit', function() {
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('progress').style.display = 'block';
+
+  // Voortgangsbalk animatie
+  let pct = 0;
+  const bar = document.getElementById('progress-bar');
+  const interval = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 8, 90);
+    bar.style.width = pct + '%';
+  }, 800);
+});
+</script>
+
+</body>
+</html>
