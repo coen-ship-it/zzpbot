@@ -14,8 +14,6 @@ venv/
 env/
 .venv/
 *.egg-info/
-dist/
-!dist/monitor.exe
 build/
 *.spec.bak
 
