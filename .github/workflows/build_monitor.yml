@@ -1,0 +1,40 @@
+name: Build monitor.exe
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'monitor.py'
+      - 'build_monitor.spec'
+      - '.github/workflows/build_monitor.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python instellen
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies installeren
+        run: pip install pyinstaller pywin32 psutil requests
+
+      - name: pywin32 post-install
+        run: python -m pywin32_postinstall -install
+        continue-on-error: true
+
+      - name: Build monitor.exe
+        run: pyinstaller build_monitor.spec
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-exe
+          path: dist/monitor.exe
+          retention-days: 30
