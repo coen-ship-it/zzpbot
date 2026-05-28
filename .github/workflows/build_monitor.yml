@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -38,3 +40,11 @@ jobs:
           name: monitor-exe
           path: dist/monitor.exe
           retention-days: 30
+
+      - name: Commit monitor.exe naar repo
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add dist/monitor.exe
+          git commit -m "ci: update monitor.exe [skip ci]" || echo "Geen wijzigingen"
+          git push
